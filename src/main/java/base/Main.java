@@ -9,6 +9,8 @@ import java.util.List;
 import base.controllers.*;
 import com.cpjd.main.TBA;
 
+import org.apache.commons.lang3.ObjectUtils.Null;
+
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -22,6 +24,8 @@ public class Main {
 
 //    public static ArrayList<CustomTeam> teamSearchResults = new ArrayList<>();
     public static CustomTeam teamResult;
+
+    private final static String[] STAND_SCOUTERS = {"geran", "matt", "nick", "thomas", "claire", "max"};
 
     public enum Windows {
         adminSignIn("/layouts/adminSignIn.fxml"), newSession("/layouts/newSession.fxml"),
@@ -99,13 +103,16 @@ public class Main {
         }
 
         currentSession = activeSessions.get("CCC");
-        openMatches.addAll(Lib.convertMatches(currentSession.dataDir+"stand/geran.csv"));
-        openMatches.addAll(Lib.convertMatches(currentSession.dataDir+"stand/matt.csv"));
-        openMatches.addAll(Lib.convertMatches(currentSession.dataDir+"stand/nick.csv"));
-        openMatches.addAll(Lib.convertMatches(currentSession.dataDir+"stand/thomas.csv"));
-        openMatches.addAll(Lib.convertMatches(currentSession.dataDir+"stand/claire.csv"));
-        openMatches.addAll(Lib.convertMatches(currentSession.dataDir+"stand/max.csv"));
 
+        if (currentSession == null) {
+            // Help
+            currentSession = new Session(2019, "CCC", "ccc_2019", "ccc_2019/", new CustColor("#FFFFFF"));
+        }
+
+
+        for (String scouter : STAND_SCOUTERS) {
+            openMatches.addAll(Lib.convertMatches(currentSession.dataDir + "stand/" + scouter + ".csv"));
+        }
         openTeams.addAll(Lib.generateTeams(currentSession.eventDir+"teams.csv"));
 
         for(CustomMatch match : openMatches){
@@ -120,6 +127,7 @@ public class Main {
             }
             team.syncTBA();
         }
+
 
         Lib.saveTeams(openTeams, currentSession.eventDir);
 
@@ -137,7 +145,7 @@ public class Main {
 //        currentSession = activeSessions.get("Sac 2019");
 //        openTeams.addAll(Lib.generateTeams(eventDir+"teams.csv"));
 
-        
+
 
         Application.launch(StartupControl.class, args);
 

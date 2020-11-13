@@ -245,7 +245,7 @@ public class CustomTeam {
                 writer.write(match.toString()+"\n");
             }
             writer.close();
-        }catch(IOException e){}
+        }catch(Exception e){}
     }
 
     @Deprecated
