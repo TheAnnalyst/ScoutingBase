@@ -5,28 +5,28 @@ import java.util.HashMap
 import com.cpjd.models.matches.Match
 import com.cpjd.utils.exceptions.DataNotFoundException
 
-@CompileStatic
+@groovy.transform.CompileStatic
 class CustomMatch {
 
     private int teamNum
     private String matchType
-    private int matchNum
+    int matchNum
     private String alliancePosition
     private boolean isBlueAlliance
 
-    private int HPShipGame
-    private int HPShipSand
-    private int HPRocketGame
-    private int HPRocketSand
-    private int HPDropGame
-    private int HPDropSand
+    private int hpShipGame
+    private int hpShipSand
+    private int hpRocketGame
+    private int hpRocketSand
+    private int hpDropGame
+    private int hpDropSand
 
-    private int CShipGame
-    private int CShipSand
-    private int CRocketGame
-    private int CRocketSand
-    private int CDropGame
-    private int CDropSand
+    private int cShipGame
+    private int cShipSand
+    private int cRocketGame
+    private int cRocketSand
+    private int cDropGame
+    private int cDropSand
 
     private int scaleLevel
     private boolean isHelp = false
@@ -36,21 +36,20 @@ class CustomMatch {
 
     private Long fouls
     private Long techs
-    private boolean yellow
-    private boolean red
-    private boolean eStopped
-    private boolean borked
+    boolean yellow
+    boolean red
+    boolean eStopped
+    boolean borked
 
     private int points
     private int nonFoulPoints = 0
-    private int rankingPoints = 0
-    private boolean rRocket = false, lRocket = false, habRP = false, crRP = false
+    int rankingPoints = 0
+    boolean rRocket = false, lRocket = false, habRP = false, crRP = false
 
     HashMap<String, Object> scoreBreakdown
-    private boolean tbaSynced = false
+    boolean tbaSynced = false
 
-    private String matchNotes
-
+    String matchNotes
 
     CustomMatch(String[] csvRow) {
         this.matchType = csvRow[0]
@@ -65,50 +64,50 @@ class CustomMatch {
 
         this.startHab = Integer.valueOf(csvRow[4])
 
-        this.CShipSand = Integer.valueOf(csvRow[5])
-        this.CRocketSand = Integer.valueOf(csvRow[6])
-        this.CDropSand = Integer.valueOf(csvRow[7])
-        this.HPShipSand = Integer.valueOf(csvRow[8])
-        this.HPRocketSand = Integer.valueOf(csvRow[9])
-        this.HPDropSand = Integer.valueOf(csvRow[10])
+        this.cShipSand = Integer.valueOf(csvRow[5])
+        this.cRocketSand = Integer.valueOf(csvRow[6])
+        this.cDropSand = Integer.valueOf(csvRow[7])
+        this.hpShipSand = Integer.valueOf(csvRow[8])
+        this.hpRocketSand = Integer.valueOf(csvRow[9])
+        this.hpDropSand = Integer.valueOf(csvRow[10])
 
-        this.CShipGame = Integer.valueOf(csvRow[11])
-        this.CRocketGame = Integer.valueOf(csvRow[12])
-        this.CDropGame = Integer.valueOf(csvRow[13])
-        this.HPShipGame = Integer.valueOf(csvRow[14])
-        this.HPRocketGame = Integer.valueOf(csvRow[15])
-        this.HPDropGame = Integer.valueOf(csvRow[16])
+        this.cShipGame = Integer.valueOf(csvRow[11])
+        this.cRocketGame = Integer.valueOf(csvRow[12])
+        this.cDropGame = Integer.valueOf(csvRow[13])
+        this.hpShipGame = Integer.valueOf(csvRow[14])
+        this.hpRocketGame = Integer.valueOf(csvRow[15])
+        this.hpDropGame = Integer.valueOf(csvRow[16])
 
         try {
             this.scaleLevel = Integer.valueOf(csvRow[17])
-        } catch(NumberFormatException e) {
-            Lib.report("Scale Level is not a number. Setting to 0.")
+        } catch (NumberFormatException e) {
+            Lib.report('Scale Level is not a number. Setting to 0.')
             this.scaleLevel = 0
         }
 
         this.techs = Long.valueOf(csvRow[18])
         this.fouls = Long.valueOf(csvRow[19])
-        this.yellow = csvRow[20].equalsIgnoreCase("true")
-        this.red = csvRow[21].equalsIgnoreCase("true")
-        this.borked = csvRow[22].equalsIgnoreCase("true")
+        this.yellow = csvRow[20].equalsIgnoreCase('true')
+        this.red = csvRow[21].equalsIgnoreCase('true')
+        this.borked = csvRow[22].equalsIgnoreCase('true')
         this.points = Integer.valueOf(csvRow[23])
 
         this.matchNotes = csvRow[24]
 
-        this.matchNotes = this.matchNotes.replace("\n", ".  ")
+        this.matchNotes = this.matchNotes.replace('\n', '.  ')
 
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
     public int sandPlaces() {
-        HPShipSand + HPRocketSand + CShipSand + CRocketSand
+        hpShipSand + hpRocketSand + cShipSand + cRocketSand
     }
 
     public void syncTBA() {
         Match foundMatch = new Match()
         try {
             foundMatch = Main.tbaApi.getMatch("${Main.currentSession.tbaEventKey}_qm${this.matchNum}")
-        } catch(DataNotFoundException e) {
+        } catch (DataNotFoundException e) {
             System.out.println("Match not found. \n${e}")
             return
         }
@@ -122,7 +121,7 @@ class CustomMatch {
             this.points = blueScore
         }
 
-        int redScore = foundMatch.red.getScore();
+        int redScore = foundMatch.red.getScore()
         if (this.points != redScore && this.isRedAlliance) {
             Lib.report(
                 "Scouted points for match ${this.matchNum}, Red Alliance are incorrect. Scouted points: ${this.points} TBA points: ${redScore}"
@@ -158,26 +157,26 @@ class CustomMatch {
 //        }
 
         //get the points excluding points from fouls
-        this.nonFoulPoints = this.points - this.scoreBreakdown.get("foulPoints").intValue()
+        this.nonFoulPoints = this.points - this.scoreBreakdown.get('foulPoints').intValue()
 
         int alPos = Character.getNumericValue(
             this.alliancePosition.charAt(this.alliancePosition.length() - 1)
         )
         //the starting hab
-        int habChar = Character.getNumericValue(this.scoreBreakdown.get("preMatchLevelRobot" + alPos).toString().charAt(8))
+        int habChar = Character.getNumericValue(this.scoreBreakdown.get('preMatchLevelRobot' + alPos).toString().charAt(8))
         if (this.startHab != habChar) {
             Lib.report("Start level for match ${this.matchNum}, alliance position ${this.alliancePosition} is incorrect. \nReported level: ${this.startHab}\nTBA level: ${habChar}")
             this.startHab = habChar
         }
 
         //get the number of ranking points
-        this.rankingPoints = this.scoreBreakdown.get("rp").intValue()
+        this.rankingPoints = this.scoreBreakdown.get('rp').intValue()
 
 //        this.rRocket = (boolean)this.scoreBreakdown.get("completedRocketNear")
 //        this.lRocket = (boolean)this.scoreBreakdown.get("completedRocketFar")
 
-        this.habRP = this.scoreBreakdown.get("habDockingRankingPoint")
-        this.crRP = this.scoreBreakdown.get("completeRocketRankingPoint")
+        this.habRP = this.scoreBreakdown.get('habDockingRankingPoint')
+        this.crRP = this.scoreBreakdown.get('completeRocketRankingPoint')
 
         //TODO add more?
 
@@ -187,17 +186,17 @@ class CustomMatch {
     }
 
     String toReadableString() {
-        return String.format("Team Number: %d, Match Type: %s, Match Number: %d, Position: %s, isBlue: %b, "
-                                +"HPShipGame: %d, HPShipSand: %d, HPRocketGame: %d, HPRocketSand: %d, HPDropGame: %d, "
-                                +"HPDropSand: %d, CShipGame: %d, CShipSand: %d, CRocketGame: %d, CRocketSand: %d, CDropGame: %d, "
-                                +"CDropSand: %d, Scale Level: %d, Is a Helper: %b, Starting Level: %d, Crossed the Line: %b, Fouls: %d, Tech Fouls: %d, Yellow Card: %b, "
-                                +"Red Card: %b, Emergency Stop: %b, Broken: %b, Total Points: %d, Points w/o Penalties: %d, "
-                                +"Ranking Points: %d, Filled Right Rocket: %b, Filled Left Rocket: %b, Hab Docking RP: %b, "
-                                +"Rocket RP: %b, Synced? %b, Notes: %s%n",
+        return String.format('Team Number: %d, Match Type: %s, Match Number: %d, Position: %s, isBlue: %b, '
+                                +'hpShipGame: %d, hpShipSand: %d, hpRocketGame: %d, hpRocketSand: %d, hpDropGame: %d, '
+                                +'hpDropSand: %d, cShipGame: %d, cShipSand: %d, cRocketGame: %d, cRocketSand: %d, cDropGame: %d, '
+                                +'cDropSand: %d, Scale Level: %d, Is a Helper: %b, Starting Level: %d, Crossed the Line: %b, Fouls: %d, Tech Fouls: %d, Yellow Card: %b, '
+                                +'Red Card: %b, Emergency Stop: %b, Broken: %b, Total Points: %d, Points w/o Penalties: %d, '
+                                +'Ranking Points: %d, Filled Right Rocket: %b, Filled Left Rocket: %b, Hab Docking RP: %b, '
+                                +'Rocket RP: %b, Synced? %b, Notes: %s%n',
                                 this.teamNum, this.matchType, this.matchNum, this.alliancePosition, this.isBlueAlliance,
-                                this.HPShipGame, this.HPShipSand, this.HPRocketGame, this.HPRocketSand, this.HPDropGame,
-                                this.HPDropSand, this.CShipGame, this.CShipSand, this.CRocketGame, this.CRocketSand, this.CDropGame,
-                                this.CDropSand, this.scaleLevel, this.isHelp, this.startHab, this.crossedLine, this.fouls, this.techs, this.yellow,
+                                this.hpShipGame, this.hpShipSand, this.hpRocketGame, this.hpRocketSand, this.hpDropGame,
+                                this.hpDropSand, this.cShipGame, this.cShipSand, this.cRocketGame, this.cRocketSand, this.cDropGame,
+                                this.cDropSand, this.scaleLevel, this.isHelp, this.startHab, this.crossedLine, this.fouls, this.techs, this.yellow,
                                 this.red, this.eStopped, this.borked, this.points, this.nonFoulPoints,
                                 this.rankingPoints, this.rRocket, this.lRocket, this.habRP,
                                 this.crRP, this.tbaSynced, this.matchNotes)
@@ -207,15 +206,15 @@ class CustomMatch {
     String toString() {
         def commaJoinParts = [
             this.teamNum, this.matchType, this.matchNum, this.alliancePosition,
-            this.isBlueAlliance, this.HPShipGame, this.HPShipSand, this.HPRocketGame,
-            this.HPRocketSand, this.HPDropGame, this.HPDropSand, this.CShipGame,
-            this.CShipSand, this.CRocketGame, this.CRocketSand, this.CRocketGame,
-            this.CRocketSand, this.CDropGame, this.CDropSand, this.scaleLevel, this.isHelp,
+            this.isBlueAlliance, this.hpShipGame, this.hpShipSand, this.hpRocketGame,
+            this.hpRocketSand, this.hpDropGame, this.hpDropSand, this.cShipGame,
+            this.cShipSand, this.cRocketGame, this.cRocketSand, this.cRocketGame,
+            this.cRocketSand, this.cDropGame, this.cDropSand, this.scaleLevel, this.isHelp,
             this.startHab, this.crossedLine, this.fouls, this.techs, this.yellow,
             this.red, this.eStopped, this.borked, this.points, this.nonFoulPoints,
             this.rankingPoints, this.rRocket, this.lRocket, this.habRP, this.crRP, this.tbaSynced
         ]
-        return commaJoinParts.join(',') + ",|" + this.matchNotes + "|"
+        return commaJoinParts.join(',') + ',|' + this.matchNotes + '|'
     }
 
     void setTeamNum(int teamNum) {
@@ -243,63 +242,63 @@ class CustomMatch {
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setHPShipGame(int HPShipGame) {
-        this.HPShipGame = HPShipGame
+    void sethpShipGame(int hpShipGame) {
+        this.hpShipGame = hpShipGame
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setHPShipSand(int HPShipSand) {
-        this.HPShipSand = HPShipSand
+    void sethpShipSand(int hpShipSand) {
+        this.hpShipSand = hpShipSand
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setHPRocketGame(int HPRocketGame) {
-        this.HPRocketGame = HPRocketGame
+    void sethpRocketGame(int hpRocketGame) {
+        this.hpRocketGame = hpRocketGame
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setHPRocketSand(int HPRocketSand) {
-        this.HPRocketSand = HPRocketSand
+    void sethpRocketSand(int hpRocketSand) {
+        this.hpRocketSand = hpRocketSand
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-   void setHPDropGame(int HPDropGame) {
-        this.HPDropGame = HPDropGame
+    void sethpDropGame(int hpDropGame) {
+        this.hpDropGame = hpDropGame
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setHPDropSand(int HPDropSand) {
-        this.HPDropSand = HPDropSand
+    void sethpDropSand(int hpDropSand) {
+        this.hpDropSand = hpDropSand
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setCShipGame(int CShipGame) {
-        this.CShipGame = CShipGame
+    void setcShipGame(int cShipGame) {
+        this.cShipGame = cShipGame
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setCShipSand(int CShipSand) {
-        this.CShipSand = CShipSand
+    void setcShipSand(int cShipSand) {
+        this.cShipSand = cShipSand
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setCRocketGame(int CRocketGame) {
-        this.CRocketGame = CRocketGame
+    void setcRocketGame(int cRocketGame) {
+        this.cRocketGame = cRocketGame
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setCRocketSand(int CRocketSand) {
-        this.CRocketSand = CRocketSand
+    void setcRocketSand(int cRocketSand) {
+        this.cRocketSand = cRocketSand
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setCDropGame(int CDropGame) {
-        this.CDropGame = CDropGame
+    void setcDropGame(int cDropGame) {
+        this.cDropGame = cDropGame
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setCDropSand(int CDropSand) {
-        this.CDropSand = CDropSand
+    void setcDropSand(int cDropSand) {
+        this.cDropSand = cDropSand
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
@@ -318,7 +317,7 @@ class CustomMatch {
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-   void setCrossedLine(boolean crossedLine) {
+    void setCrossedLine(boolean crossedLine) {
         this.crossedLine = crossedLine
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
@@ -388,7 +387,7 @@ class CustomMatch {
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    void setScoreBreakdown(HashMap<String,Object> scoreBreakdown) {
+    void setScoreBreakdown(HashMap<String, Object> scoreBreakdown) {
         this.scoreBreakdown = scoreBreakdown
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
@@ -402,4 +401,5 @@ class CustomMatch {
         this.matchNotes = matchNotes
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
+
 }
