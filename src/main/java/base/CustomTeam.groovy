@@ -1,25 +1,24 @@
 package base
 
+import groovy.transform.CompileStatic
+
 /**
  * Represents a FRC team.
  */
 @CompileStatic
 class CustomTeam {
-
     static enum Groups {
-
         Level3Climbers, Level2Climbers, Level2Starters, GotRed,
         HasBorked, LowScorers, HighScorers, Completed3Rockets
-
     }
 
-    private String scoutedName
-    private String tbaName
-    private String sponsors
-    private int number
+    String scoutedName
+    String tbaName
+    String sponsors
+    int number
     private boolean isFullySync = true
 
-    private List<String> robotNicknames = []
+    List<String> robotNicknames = []
 
     private List<CustomMatch> matches = []
     final private List<Pit> pits = []
@@ -71,15 +70,15 @@ class CustomTeam {
         this.save()
     }
 
-    void addMatch(Custo match) {
+    void addMatch(CustomMatch match) {
         this.avGPSand = (this.avGPSand + match.sandPlaces()) / 2
 
-        this.avHPShip = (this.avHPShip + (match.gethpShipGame() + match.gethpShipSand())) / 2
-        this.avHPRocket = (this.avHPRocket + (match.gethpRocketGame() + match.gethpRocketSand())) / 2
-        this.avHPDrop = (this.avHPDrop + (match.gethpDropGame() + match.gethpDropSand())) / 2
-        this.avCShip = (this.avCShip + (match.getcShipGame() + match.getcShipSand())) / 2
-        this.avCRocket = (this.avCRocket + (match.getcRocketGame() + match.getcRocketSand())) / 2
-        this.avCDrop = (this.avCDrop + (match.getcDropGame() + match.getcDropSand())) / 2
+        this.avHPShip = (this.avHPShip + (match.hpShipGame + match.hpShipSand) / 2)
+        this.avHPRocket = (this.avHPRocket + (match.hpRocketGame + match.hpRocketSand) / 2)
+        this.avHPDrop = (this.avHPDrop + (match.hpDropGame + match.hpDropGame) / 2)
+        this.avCShip = (this.avCShip + (match.cShipGame + match.cShipSand) / 2)
+        this.avCRocket = (this.avCRocket + (match.cRocketGame + match.cRocketSand) / 2)
+        this.avCDrop = (this.avCDrop + (match.cDropGame + match.cDropSand) / 2)
 
         this.scaleLevels.add(match.scaleLevel)
         this.consistScaleLevel = Lib.mode(this.scaleLevels)
@@ -108,7 +107,7 @@ class CustomTeam {
 
         this.matchNotes.put(match.matchNum, match.matchNotes)
         this.matches.add(match)
-        this.isFullySync = this.isFullySync && match.tbaSynce
+        this.isFullySync = this.isFullySync && match.tbaSynced
 
         Lib.saveTeam(this, Main.currentSession.eventDir)
     }
@@ -148,7 +147,7 @@ class CustomTeam {
             this.number,
             this.scoutedName,
             this.tbaName,
-            Lib.arrayToString(this.robotNicknames.toArray()),
+            this.robotNicknames.join(', '),
             this.sponsors,
             this.isFullySync,
             this.avGPSand,
@@ -158,7 +157,7 @@ class CustomTeam {
             this.isRamp, this.consistStartHab, this.maxStartHab, this.consistOffHab,
             this.avFoul, this.avTech, this.totalYellow, this.totalRed, this.eStops,
             this.borks, this.totalRPs, this.totalHabRPs, this.totalRocketRPs, this.totalRockets,
-            Lib.arrayToString(this.groups.toArray())
+            this.groups.join(', ')
         )
     }
 
@@ -195,13 +194,13 @@ class CustomTeam {
                 'Match Number | Note\n',
                 this.isFullySync,
                 this.number, this.scoutedName, this.tbaName, this.sponsors,
-                Lib.arrayToString(this.robotNicknames.toArray()),
+                this.robotNicknames.join(', '),
 
-                Lib.arrayToString(this.groups.toArray()),
+                this.groups.join(', '),
                 this.consistOffHab, this.consistStartHab, this.maxStartHab,
-                Lib.arrayToString(this.startHabs.toArray()),
+                this.startHabs.join(', '),
                 this.isRamp, this.consistScaleLevel, this.maxScaleLevel,
-                Lib.arrayToString(this.scaleLevels.toArray()),
+                this.scaleLevels.join(', '),
                 this.totalRPs, this.totalHabRPs, this.totalRocketRPs, this.totalRockets,
                 this.avFoul, this.avTech,
                 this.totalYellow, this.totalRed,
@@ -222,7 +221,7 @@ class CustomTeam {
                 writer.write(match.toString() + '\n')
             }
             writer.close()
-        } catch (Exception e) { }
+        } catch (Exception ignored) { }
     }
 
     void setScoutedName(String scoutedName) {
@@ -398,5 +397,4 @@ class CustomTeam {
     private void save() {
         Lib.saveTeam(this, Main.currentSession.eventDir)
     }
-
 }

@@ -1,47 +1,45 @@
 package base
 
-import java.util.HashMap
-
 import com.cpjd.models.matches.Match
 import com.cpjd.utils.exceptions.DataNotFoundException
+import groovy.transform.CompileStatic
 
-@groovy.transform.CompileStatic
+@CompileStatic
 class CustomMatch {
-
-    private int teamNum
+    int teamNum
     private String matchType
     int matchNum
-    private String alliancePosition
+    String alliancePosition
     private boolean isBlueAlliance
 
-    private int hpShipGame
-    private int hpShipSand
-    private int hpRocketGame
-    private int hpRocketSand
-    private int hpDropGame
-    private int hpDropSand
+    int hpShipGame
+    int hpShipSand
+    int hpRocketGame
+    int hpRocketSand
+    int hpDropGame
+    int hpDropSand
 
-    private int cShipGame
-    private int cShipSand
-    private int cRocketGame
-    private int cRocketSand
-    private int cDropGame
-    private int cDropSand
+    int cShipGame
+    int cShipSand
+    int cRocketGame
+    int cRocketSand
+    int cDropGame
+    int cDropSand
 
-    private int scaleLevel
-    private boolean isHelp = false
+    int scaleLevel
+    boolean isHelp = false
 
-    private int startHab
+    int startHab
     private boolean crossedLine = false
 
-    private Long fouls
-    private Long techs
+    Long fouls
+    Long techs
     boolean yellow
     boolean red
     boolean eStopped
     boolean borked
 
-    private int points
+    private long points
     private int nonFoulPoints = 0
     int rankingPoints = 0
     boolean rRocket = false, lRocket = false, habRP = false, crRP = false
@@ -80,7 +78,7 @@ class CustomMatch {
 
         try {
             this.scaleLevel = Integer.valueOf(csvRow[17])
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException ignored) {
             Lib.report('Scale Level is not a number. Setting to 0.')
             this.scaleLevel = 0
         }
@@ -99,12 +97,12 @@ class CustomMatch {
         Lib.saveMatch(this, Main.currentSession.eventDir)
     }
 
-    public int sandPlaces() {
+    int sandPlaces() {
         hpShipSand + hpRocketSand + cShipSand + cRocketSand
     }
 
-    public void syncTBA() {
-        Match foundMatch = new Match()
+    void syncTBA() {
+        Match foundMatch
         try {
             foundMatch = Main.tbaApi.getMatch("${Main.currentSession.tbaEventKey}_qm${this.matchNum}")
         } catch (DataNotFoundException e) {
@@ -113,27 +111,27 @@ class CustomMatch {
         }
 
         //get the correct points TODO find a better way to do blue vs red
-        int blueScore = foundMatch.blue.getScore()getBlueScoreBreakdow
+        long blueScore = foundMatch.blue.score
         if (this.points != blueScore && this.isBlueAlliance) {
             Lib.report(
-                "Scouted points for match ${this.matchNum}, Blue Alliance are incorrect. Scouted points: ${this.points} TBA points: ${blueScore}"
+                    "Scouted points for match ${this.matchNum}, Blue Alliance are incorrect. Scouted points: ${this.points} TBA points: ${blueScore}"
             )
             this.points = blueScore
         }
 
-        int redScore = foundMatch.red.getScore()
-        if (this.points != redScore && this.isRedAlliance) {
+        long redScore = foundMatch.red.score
+        if (this.points != redScore && !this.isBlueAlliance) {
             Lib.report(
-                "Scouted points for match ${this.matchNum}, Red Alliance are incorrect. Scouted points: ${this.points} TBA points: ${redScore}"
+                    "Scouted points for match ${this.matchNum}, Red Alliance are incorrect. Scouted points: ${this.points} TBA points: ${redScore}"
             )
             this.points = redScore
         }
 
         //get the big fancy hashmap
         if (this.isBlueAlliance) {
-            this.scoreBreakdown = foundMatch.getBlueScoreBreakdown()
+            this.scoreBreakdown = foundMatch.blueScoreBreakdown
         } else {
-            this.scoreBreakdown = foundMatch.getRedScoreBreakdown()
+            this.scoreBreakdown = foundMatch.redScoreBreakdown
         }
 
         System.out.println(this.scoreBreakdown)
@@ -157,10 +155,10 @@ class CustomMatch {
 //        }
 
         //get the points excluding points from fouls
-        this.nonFoulPoints = this.points - this.scoreBreakdown.get('foulPoints').intValue()
+        this.nonFoulPoints = this.points - (this.scoreBreakdown.get('foulPoints') as Number)
 
         int alPos = Character.getNumericValue(
-            this.alliancePosition.charAt(this.alliancePosition.length() - 1)
+                this.alliancePosition.charAt(this.alliancePosition.length() - 1)
         )
         //the starting hab
         int habChar = Character.getNumericValue(this.scoreBreakdown.get('preMatchLevelRobot' + alPos).toString().charAt(8))
@@ -170,7 +168,7 @@ class CustomMatch {
         }
 
         //get the number of ranking points
-        this.rankingPoints = this.scoreBreakdown.get('rp').intValue()
+        this.rankingPoints = (int) this.scoreBreakdown.get('rp')
 
 //        this.rRocket = (boolean)this.scoreBreakdown.get("completedRocketNear")
 //        this.lRocket = (boolean)this.scoreBreakdown.get("completedRocketFar")
@@ -187,32 +185,32 @@ class CustomMatch {
 
     String toReadableString() {
         return String.format('Team Number: %d, Match Type: %s, Match Number: %d, Position: %s, isBlue: %b, '
-                                +'hpShipGame: %d, hpShipSand: %d, hpRocketGame: %d, hpRocketSand: %d, hpDropGame: %d, '
-                                +'hpDropSand: %d, cShipGame: %d, cShipSand: %d, cRocketGame: %d, cRocketSand: %d, cDropGame: %d, '
-                                +'cDropSand: %d, Scale Level: %d, Is a Helper: %b, Starting Level: %d, Crossed the Line: %b, Fouls: %d, Tech Fouls: %d, Yellow Card: %b, '
-                                +'Red Card: %b, Emergency Stop: %b, Broken: %b, Total Points: %d, Points w/o Penalties: %d, '
-                                +'Ranking Points: %d, Filled Right Rocket: %b, Filled Left Rocket: %b, Hab Docking RP: %b, '
-                                +'Rocket RP: %b, Synced? %b, Notes: %s%n',
-                                this.teamNum, this.matchType, this.matchNum, this.alliancePosition, this.isBlueAlliance,
-                                this.hpShipGame, this.hpShipSand, this.hpRocketGame, this.hpRocketSand, this.hpDropGame,
-                                this.hpDropSand, this.cShipGame, this.cShipSand, this.cRocketGame, this.cRocketSand, this.cDropGame,
-                                this.cDropSand, this.scaleLevel, this.isHelp, this.startHab, this.crossedLine, this.fouls, this.techs, this.yellow,
-                                this.red, this.eStopped, this.borked, this.points, this.nonFoulPoints,
-                                this.rankingPoints, this.rRocket, this.lRocket, this.habRP,
-                                this.crRP, this.tbaSynced, this.matchNotes)
+                + 'hpShipGame: %d, hpShipSand: %d, hpRocketGame: %d, hpRocketSand: %d, hpDropGame: %d, '
+                + 'hpDropSand: %d, cShipGame: %d, cShipSand: %d, cRocketGame: %d, cRocketSand: %d, cDropGame: %d, '
+                + 'cDropSand: %d, Scale Level: %d, Is a Helper: %b, Starting Level: %d, Crossed the Line: %b, Fouls: %d, Tech Fouls: %d, Yellow Card: %b, '
+                + 'Red Card: %b, Emergency Stop: %b, Broken: %b, Total Points: %d, Points w/o Penalties: %d, '
+                + 'Ranking Points: %d, Filled Right Rocket: %b, Filled Left Rocket: %b, Hab Docking RP: %b, '
+                + 'Rocket RP: %b, Synced? %b, Notes: %s%n',
+                this.teamNum, this.matchType, this.matchNum, this.alliancePosition, this.isBlueAlliance,
+                this.hpShipGame, this.hpShipSand, this.hpRocketGame, this.hpRocketSand, this.hpDropGame,
+                this.hpDropSand, this.cShipGame, this.cShipSand, this.cRocketGame, this.cRocketSand, this.cDropGame,
+                this.cDropSand, this.scaleLevel, this.isHelp, this.startHab, this.crossedLine, this.fouls, this.techs, this.yellow,
+                this.red, this.eStopped, this.borked, this.points, this.nonFoulPoints,
+                this.rankingPoints, this.rRocket, this.lRocket, this.habRP,
+                this.crRP, this.tbaSynced, this.matchNotes)
     }
 
     @Override
     String toString() {
         def commaJoinParts = [
-            this.teamNum, this.matchType, this.matchNum, this.alliancePosition,
-            this.isBlueAlliance, this.hpShipGame, this.hpShipSand, this.hpRocketGame,
-            this.hpRocketSand, this.hpDropGame, this.hpDropSand, this.cShipGame,
-            this.cShipSand, this.cRocketGame, this.cRocketSand, this.cRocketGame,
-            this.cRocketSand, this.cDropGame, this.cDropSand, this.scaleLevel, this.isHelp,
-            this.startHab, this.crossedLine, this.fouls, this.techs, this.yellow,
-            this.red, this.eStopped, this.borked, this.points, this.nonFoulPoints,
-            this.rankingPoints, this.rRocket, this.lRocket, this.habRP, this.crRP, this.tbaSynced
+                this.teamNum, this.matchType, this.matchNum, this.alliancePosition,
+                this.isBlueAlliance, this.hpShipGame, this.hpShipSand, this.hpRocketGame,
+                this.hpRocketSand, this.hpDropGame, this.hpDropSand, this.cShipGame,
+                this.cShipSand, this.cRocketGame, this.cRocketSand, this.cRocketGame,
+                this.cRocketSand, this.cDropGame, this.cDropSand, this.scaleLevel, this.isHelp,
+                this.startHab, this.crossedLine, this.fouls, this.techs, this.yellow,
+                this.red, this.eStopped, this.borked, this.points, this.nonFoulPoints,
+                this.rankingPoints, this.rRocket, this.lRocket, this.habRP, this.crRP, this.tbaSynced
         ]
         return commaJoinParts.join(',') + ',|' + this.matchNotes + '|'
     }

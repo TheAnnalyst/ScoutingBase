@@ -1,25 +1,17 @@
 package base
 
-import java.awt.Window
-import java.io.File
-import java.util.List
-import java.util.HashMap
-import java.util.List
-
 import base.controllers.*
 import com.cpjd.main.TBA
-
-import org.apache.commons.lang3.ObjectUtils.Null
-
+import groovy.transform.CompileStatic
 import javafx.application.Application
-import javafx.stage.Stage
+
+import javax.naming.ldap.Control
 
 /**
  * The main class for the scouting base.
  */
 @CompileStatic
 class Main {
-
     static TBA tbaApi
     private final static String TBA_KEY = 'OPynqKt8K0vueAXqxZzdigY9OBYK3KMgQQrsM4l8jE5cBmGfByhy6YzVIb2Ts7xD'
     // public static Session sesh = new Session(2019, "Sac 2019", "2019cada",
@@ -34,7 +26,6 @@ class Main {
     private final static List<String> STAND_SCOUTERS = ["geran", "matt", "nick", "thomas", "claire", "max"]
 
     enum Windows {
-
         adminSignIn("/layouts/adminSignIn.fxml"), newSession("/layouts/newSession.fxml"),
         pitAssignEdit("/layouts/pitAssignEdit.fxml"), pitAssignView("/layouts/pitAssignView.fxml"),
         pitDataEntry("/layouts/pitDataEntry.fxml"), pitLaunch("/layouts/pitLaunch.fxml"),
@@ -56,27 +47,24 @@ class Main {
         String toString() {
             return filePath
         }
-
     }
 
     //EVERYTHING IN THIS MAP MUST BE AN APPLICATION THAT EXTENDS ControlInterface
     //OTHERWISE STUFF WILL BREAK
-    static Map<Windows, Application> controllersMap = [:] {
-        {
-            put(Windows.startup, StartupControl.getInstance())
-            put(Windows.newSession, NewSessionControl.getInstance())
-            put(Windows.adminSignIn, AdminSignInControl.getInstance())
-            put(Windows.sessionLaunch, SessionLaunchControl.getInstance())
-            put(Windows.pitLaunch, new PitLaunchControl())
-            put(Windows.pitDataEntry, new PitDataEntryControl())
-            put(Windows.teamSearchResults, new TeamSearchResultsControl())
-            put(Windows.statsOffline, new StatsOfflineControl())
-            put(Windows.statsOnline, new StatsOnlineControl())
-            put(Windows.standEntry, new StandEntryControl())
-            put(Windows.standLaunch, new StandLaunchControl())
-            put(Windows.teamSearch, new TeamSearchControl())
-        }
-    }
+    static Map<Windows, Application> controllersMap = [
+            Windows.startup          : StartupControl.getInstance(),
+            Windows.newSession       : NewSessionControl.getInstance(),
+            Windows.adminSignIn      : AdminSignInControl.getInstance(),
+            Windows.sessionLaunch    : SessionLaunchControl.getInstance(),
+            Windows.pitLaunch        : new PitLaunchControl(),
+            Windows.pitDataEntry     : new PitDataEntryControl(),
+            Windows.teamSearchResults: new TeamSearchResultsControl(),
+            Windows.statsOffline     : new StatsOfflineControl(),
+            Windows.statsOnline      : new StatsOnlineControl(),
+            Windows.standEntry       : new StandEntryControl(),
+            Windows.standLaunch      : new StandLaunchControl(),
+            Windows.teamSearch       : new TeamSearchControl(),
+    ] as Map<Windows, Application>
 
     //FIXME i know, i know, i'm just too lazy to encrypt it
     static String adminPw = "croissant"
@@ -129,7 +117,7 @@ class Main {
 
         for (CustomTeam team : openTeams){
             for (CustomMatch match : openMatches){
-                if (match.teamNum == team.teamNum){
+                if (match.teamNum == team.number){
                     team.addMatch(match)
                 }
             }
@@ -153,7 +141,7 @@ class Main {
 //        currentSession = activeSessions.get("Sac 2019")
 //        openTeams.addAll(Lib.generateTeams(eventDir+"teams.csv"))
 
-        Application.launch(StartupControl.class, args)
+        Application.launch(StartupControl.class, args as String)
 
     }
 

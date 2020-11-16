@@ -1,5 +1,6 @@
 package base
 
+import groovy.transform.CompileStatic
 import javafx.animation.KeyFrame
 import javafx.animation.KeyValue
 import javafx.animation.Timeline

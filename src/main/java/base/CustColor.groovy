@@ -1,5 +1,6 @@
 package base
 
+import groovy.transform.CompileStatic
 import javafx.scene.paint.Color
 
 /**
@@ -7,26 +8,19 @@ import javafx.scene.paint.Color
  */
 @CompileStatic
 class CustColor {
-
     private static final int COLOR_TO_HEX = 255
     String hexVal
 
     CustColor(Color color) {
         this.hexVal = String.format(
             '#%02x%02X%02X',
-            (color.red * this.COLOR_TO_HEX),
-            (color.green * this.COLOR_TO_HEX),
-            (color.blue * this.COLOR_TO_HEX)
+            (color.red * COLOR_TO_HEX),
+            (color.green * COLOR_TO_HEX),
+            (color.blue * COLOR_TO_HEX)
         )
     }
 
     CustColor(String color) {
         this.hexVal = color
     }
-
-    CustColor(int intColor) {
-        hexVal = String.format('#%06X', (0xFFFFFF & intColor))
-        Lib.report(hexVal)
-    }
-
 }

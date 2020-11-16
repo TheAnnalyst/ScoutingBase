@@ -1,5 +1,7 @@
 package base
 
+import groovy.transform.CompileStatic
+
 /**
  * A thread to recover teams or matches stored to disk.
  */

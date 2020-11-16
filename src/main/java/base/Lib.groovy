@@ -1,5 +1,7 @@
 package base
 
+import groovy.transform.CompileStatic
+
 import java.io.*
 import java.nio.channels.NotYetConnectedException
 import java.util.*
@@ -34,7 +36,7 @@ import javafx.application.Application
  * Most of these can probably use Groovy methods instead.
  */
 @CompileStatic
-public class Lib {
+class Lib {
 
     static ObjectMapper mapper = new ObjectMapper()
 
@@ -64,7 +66,7 @@ public class Lib {
 
     static String arrayToLinebreakString(List<Object> array, String spacing) {
         String str = ""
-        if (array.length > 1) {
+        if (array.size() > 1) {
             for (Object part : array) {
                 str += spacing
                 str += part.toString()
@@ -75,13 +77,13 @@ public class Lib {
     }
 
     static String[] stringToArray(String string, boolean hasSides) {
-        String commaString = ""
+        String commaString
         if (hasSides) {
             commaString = string.substring(1, string.length() - 2)
         } else {
             commaString = string
         }
-        return commaString.split(",")
+        return commaString.split(',')
     }
 
     static String[] stringToArray(String string) {
@@ -98,7 +100,7 @@ public class Lib {
         report("NOW CONVERTING MATCHES FROM: ${filePath}")
         CSVReader reader
         try {
-            reader = new CSVReader(new FileReader(filePath), ',', '|')
+            reader = new CSVReader(new FileReader(filePath), ',' as char, '|' as char)
         } catch (FileNotFoundException e) {
             report("Match Convert file not found:\n${e}")
             return null
@@ -113,7 +115,7 @@ public class Lib {
         }
 
         for (String[] row : rows) {
-            if (row[0].equals('Qualifier')) {
+            if (row[0] == 'Qualifier') {
                 collectedMatches.add(new CustomMatch(row))
                 // report("Match created")
             } else {
@@ -134,7 +136,7 @@ public class Lib {
         report("NOW GENERATING TEAMS FROM: ${teamCSVPath}")
         CSVReader reader
         try {
-            reader = new CSVReader(new FileReader(teamCSVPath), ',')
+            reader = new CSVReader(new FileReader(teamCSVPath), ',' as char)
         } catch (FileNotFoundException e) {
             report("Team Generation file not found:\n${e}")
             return null
@@ -165,8 +167,8 @@ public class Lib {
     static boolean InternettyChecky() throws Exception {
         long now = (new Date()).getTime()
 
-        Process process = java.lang.Runtime.getRuntime().exec("ping -w 1 -n 2 google.com")
-        int x = process.waitFor();
+        Process process = Runtime.getRuntime().exec("ping -w 1 -n 2 google.com")
+        int x = process.waitFor()
         if (x == 0) {
             long dt = (new Date()).getTime() - now
             report("Internet connection checked and active in ${dt / 1000d}s, output ${x}")
@@ -187,7 +189,7 @@ public class Lib {
         for (CustomMatch match : matches) {
             try {
                 mapper.writeValue(
-                    new File("${eventDir}backups/matches/qm${match.getMatchNum()}${match.getAlliancePosition()}.json"),
+                    new File("${eventDir}backups/matches/qm${match.getMatchNum()}${match.alliancePosition}.json"),
                     match
                 )
             } catch (Exception e) {
@@ -280,7 +282,7 @@ public class Lib {
     static CustomTeam searchForTeamName(String teamName, List<CustomTeam> teams) throws TeamNotFoundException {
         //TODO improve this function to inclued close matches in team name (ex. "BREAD" vs "B.R.E.A.D.")
         for (CustomTeam team : teams) {
-            if (team.getScoutedName().equalsIgnoreCase(teamName) || team.getTbaName().equalsIgnoreCase(teamName)) {
+            if (team.scoutedName.equalsIgnoreCase(teamName) || team.tbaName.equalsIgnoreCase(teamName)) {
                 return team
             }
         }
@@ -289,7 +291,7 @@ public class Lib {
 
     static CustomTeam searchForRobotNickname(String nickname, List<CustomTeam> teams) throws TeamNotFoundException{
         for (CustomTeam team : teams) {
-            for (String nick : team.getRobotNicknames()) {
+            for (String nick : team.robotNicknames) {
                 if (nick.equalsIgnoreCase(nickname)) {
                     return team
                 }
@@ -300,11 +302,9 @@ public class Lib {
     }
 
     static class TeamNotFoundException extends Exception {
-
         TeamNotFoundException(String message) {
-            super(message);
+            super(message)
         }
-
     }
 
     static void savePit(Pit pit, String eventDir) {
@@ -316,41 +316,41 @@ public class Lib {
         try {
            writer = new FileWriter(eventDir+"data/pit/"+pit.teamNumber+"-"+pit.scoutName+".csv", false)
         } catch (IOException e) {
-            Lib.report("File not found error")
+            report("File not found error")
             System.out.println(e)
         }
 
         try {
             // I hate this
             writer.write(
-                    pit.teamNumber+","+
-                    pit.teamName+","+
-                    pit.scoutName+","+
-                    pit.level2Climb+","+
-                    pit.level3Climb+","+
-                    pit.intakeType+","+
-                    pit.rocketLevel+","+
-                    pit.mechIssues+","+
-                    pit.cam+","+
-                    pit.preset+","+
-                    pit.sense+","+
-                    pit.reach+","+
-                    pit.ramp+","+
-                    arrayToString(pit.nicknames, ",")+","+
-                    pit.startHab+","+
-                    pit.driverControl+","+
-                    pit.pathing+","+
-                    pit.noControl+","+
-                    arrayToString(pit.autoStrats.toArray())+","+
-                    pit.autoNotes+","+
-                    pit.prefHatch+","+
-                    pit.prefCargo+","+
-                    pit.ppm+","+
-                    arrayToString(pit.teleStrats.toArray())+","+
-                    pit.cycleTime+","+
-                    pit.teleNotes+","+
-                    pit.hpPref+","+
-                    pit.stratPref+","+
+                    pit.teamNumber + ',' +
+                    pit.teamName + ',' +
+                    pit.scoutName + ',' +
+                    pit.level2Climb + ',' +
+                    pit.level3Climb + ',' +
+                    pit.intakeType + ',' +
+                    pit.rocketLevel + ',' +
+                    pit.mechIssues + ',' +
+                    pit.cam + ',' +
+                    pit.preset + ',' +
+                    pit.sense + ',' +
+                    pit.reach + ',' +
+                    pit.ramp + ',' +
+                    pit.nicknames.join(',') + ','+
+                    pit.startHab + ',' +
+                    pit.driverControl + ',' +
+                    pit.pathing + ',' +
+                    pit.noControl + ',' +
+                    pit.autoStrats.join(', ') + ',' +
+                    pit.autoNotes + ',' +
+                    pit.prefHatch + ',' +
+                    pit.prefCargo + ',' +
+                    pit.ppm + ',' +
+                    pit.teleStrats.join(', ') + ',' +
+                    pit.cycleTime + ',' +
+                    pit.teleNotes + ',' +
+                    pit.hpPref + ',' +
+                    pit.stratPref + ',' +
                     pit.notes
             )
 
@@ -429,10 +429,10 @@ public class Lib {
     }
 
 
-    static <T extends Application & ControlInterface> void pageChangeRequest(Main.Windows reqPage, boolean isBack, T app) {
+    static <T extends Application & ControlInterface> void pageChangeRequest(Windows reqPage, boolean isBack, T app) {
         // try{
             System.out.println("APP HASH: ${app}")
-            T newApp = Main.controllersMap.get(reqPage)
+            T newApp = Main.controllersMap.get(reqPage) as T
             report(newApp.toString())
 
             try {
@@ -458,9 +458,9 @@ public class Lib {
     }
 
 
-    public static <T extends Application & ControlInterface> void pwProteccPageChangeRequest(Main.Windows finalPage, boolean isBack, T app) {
+    static <T extends Application & ControlInterface> void pwProteccPageChangeRequest(Windows finalPage, boolean isBack, T app) {
         try {
-            AdminSignInControl newApp = Main.controllersMap.get(Windows.adminSignIn)
+            AdminSignInControl newApp = Main.controllersMap.get(Windows.adminSignIn) as AdminSignInControl
             newApp.start(new Stage())
             newApp.setPreviousPage(app.getName())
             newApp.setFollowThroughPage(finalPage)

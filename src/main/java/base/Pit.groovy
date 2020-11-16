@@ -12,9 +12,9 @@ class Pit {
 
     boolean level2Climb, level3Climb
 
-    String intakeType; // Hatch Cargo Both
+    String intakeType // Hatch Cargo Both
 
-    int rocketLevel; // 1 2 3
+    int rocketLevel // 1 2 3
 
     int mechIssues
 
@@ -22,9 +22,9 @@ class Pit {
 
     String[] nicknames
 
-    int startHab; // 1 2
+    int startHab // 1 2
 
-    boolean driverControl, pathing, noControl; // auto
+    boolean driverControl, pathing, noControl // auto
 
     List<String> autoStrats = []
 
@@ -32,7 +32,7 @@ class Pit {
 
     boolean prefHatch, prefCargo
 
-    int ppm; //pieces per match
+    int ppm //pieces per match
 
     List<String> teleStrats = []
 
@@ -40,9 +40,9 @@ class Pit {
 
     String teleNotes
 
-    String hpPref; // Integral Ideal Unnecessary
+    String hpPref // Integral Ideal Unnecessary
 
-    String stratPref; // Strong Preferred Flexible
+    String stratPref // Strong Preferred Flexible
 
     String notes
 
@@ -135,7 +135,7 @@ class Pit {
 
             writer.close()
 
-        } catch (IOException e){ }
+        } catch (IOException ignored){ }
     }
 
 }
